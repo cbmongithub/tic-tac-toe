@@ -1,5 +1,11 @@
-#Tic Tac Toe
+# Tic Tac Toe
 
-This project is under development.
+A tic tac toe game under construction!
 
-There's two client builds here, since I am not sure if I will be using next or regular react.
+# Building with:
+
+- Next js
+- Socket io
+- Node js
+- Express
+- Tailwind Css
