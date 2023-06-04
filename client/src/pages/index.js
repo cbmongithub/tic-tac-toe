@@ -1,7 +1,7 @@
+import { useRouter } from 'next/router'
+import queryString from 'query-string'
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
 import io from 'socket.io-client'
-import './index.css'
 
 const socket = io('http://localhost:4000')
 
@@ -15,11 +15,11 @@ const Game = () => {
   const [hasOpponent, setHasOpponent] = useState(false)
   const [share, setShare] = useState(false)
   const [turnData, setTurnData] = useState(false)
-
-  const location = useLocation()
-  const params = new URLSearchParams(location.search)
-  const paramsRoom = params.get('room')
+  const location = useRouter()
+  const parsedRoom = queryString.parse(location.asPath)
+  const paramsRoom = parsedRoom['/?room']
   const [room, setRoom] = useState(paramsRoom)
+  const [isSSR, setIsSSR] = useState(true)
 
   const turn = (index) => {
     if (!game[index] && !winner && myTurn && hasOpponent) {
@@ -37,6 +37,21 @@ const Game = () => {
     setTurnNumber(0)
     setMyTurn(false)
   }
+
+  useEffect(() => {
+    setIsSSR(false)
+    if (paramsRoom) {
+      setXO('O')
+      socket.emit('join', paramsRoom)
+      setRoom(paramsRoom)
+      setMyTurn(false)
+    } else {
+      const newRoomName = random()
+      socket.emit('create', newRoomName)
+      setRoom(newRoomName)
+      setMyTurn(true)
+    }
+  }, [paramsRoom])
 
   useEffect(() => {
     combinations.forEach((c) => {
@@ -84,25 +99,9 @@ const Game = () => {
     }
   }, [turnData, game, turnNumber, winner, myTurn])
 
-  useEffect(() => {
-    if (paramsRoom) {
-      // means you are player 2
-      setXO('O')
-      socket.emit('join', paramsRoom)
-      setRoom(paramsRoom)
-      setMyTurn(false)
-    } else {
-      // means you are player 1
-      const newRoomName = random()
-      socket.emit('create', newRoomName)
-      setRoom(newRoomName)
-      setMyTurn(true)
-    }
-  }, [paramsRoom])
-
   return (
     <div className='container'>
-      <h1 className='text-3xl font-bold'>Room: {room}</h1>
+      <h1 className='text-3xl font-bold'>Room: {!isSSR && room}</h1>
       <button
         className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
         onClick={() => setShare(!share)}
@@ -143,20 +142,20 @@ const Game = () => {
           <br />
         )}
       </p>
-      <div className='row'>
-        <Box index={0} turn={turn} value={game[0]} />
-        <Box index={1} turn={turn} value={game[1]} />
-        <Box index={2} turn={turn} value={game[2]} />
+      <div className='flex'>
+        <Box index={0} key={0} turn={turn} value={game[0]} />
+        <Box index={1} key={1} turn={turn} value={game[1]} />
+        <Box index={2} key={2} turn={turn} value={game[2]} />
       </div>
-      <div className='row'>
-        <Box index={3} turn={turn} value={game[3]} />
-        <Box index={4} turn={turn} value={game[4]} />
-        <Box index={5} turn={turn} value={game[5]} />
+      <div className='flex'>
+        <Box index={3} key={3} turn={turn} value={game[3]} />
+        <Box index={4} key={4} turn={turn} value={game[4]} />
+        <Box index={5} key={5} turn={turn} value={game[5]} />
       </div>
-      <div className='row'>
-        <Box index={6} turn={turn} value={game[6]} />
-        <Box index={7} turn={turn} value={game[7]} />
-        <Box index={8} turn={turn} value={game[8]} />
+      <div className='flex'>
+        <Box index={6} key={6} turn={turn} value={game[6]} />
+        <Box index={7} key={7} turn={turn} value={game[7]} />
+        <Box index={8} key={8} turn={turn} value={game[8]} />
       </div>
     </div>
   )
@@ -164,7 +163,10 @@ const Game = () => {
 
 const Box = ({ index, turn, value }) => {
   return (
-    <div className='box' onClick={() => turn(index)}>
+    <div
+      className='w-20 h-20 border-solid border-2 border-black mt-[-1px] ml-[-1px] text-center leading-[4.5rem] text-5xl font-bold'
+      onClick={() => turn(index)}
+    >
       {value}
     </div>
   )
