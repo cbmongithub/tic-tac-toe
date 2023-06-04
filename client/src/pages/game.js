@@ -19,7 +19,7 @@ const Game = () => {
   const location = useRouter()
   const parsedRoom = queryString.parse(location.asPath)
   const paramsName = parsedRoom['/game?name']
-  const paramsRoom = parsedRoom['/?room']
+  const paramsRoom = parsedRoom['room']
   const [name, setName] = useState(paramsName)
   const [room, setRoom] = useState(paramsRoom)
   const [isSSR, setIsSSR] = useState(true)
@@ -43,16 +43,20 @@ const Game = () => {
 
   useEffect(() => {
     setIsSSR(false)
-    setName(name)
     if (paramsRoom) {
+      // Player 2
       setXO('O')
       socket.emit('join', paramsRoom)
       setRoom(paramsRoom)
+      setName(name)
       setMyTurn(false)
     } else {
+      // Player 1
+      console.log(parsedRoom)
       const newRoomName = random()
       socket.emit('create', newRoomName)
       setRoom(newRoomName)
+      setName(name)
       setMyTurn(true)
     }
   }, [paramsRoom])
@@ -120,7 +124,7 @@ const Game = () => {
           <input
             type='text'
             className='bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 mt-2 leading-tight focus:outline-none focus:bg-white focus:border-blue-500'
-            value={`${window.location.href}?room=${room}`}
+            value={`${window.location.origin}/?room=${room}`}
             readOnly
           />
         </>
@@ -130,7 +134,7 @@ const Game = () => {
       <br />
       <br />
       {myTurn ? (
-        <p className='font-bold'>{`Your turn, ${name}`}</p>
+        <p className='font-bold'>{`Your turn, ${!isSSR && name}`}</p>
       ) : (
         <p className='font-bold'>Opponents Turn</p>
       )}
