@@ -44,15 +44,12 @@ const Game = () => {
   useEffect(() => {
     setIsSSR(false)
     if (paramsRoom) {
-      // Player 2
       setXO('O')
       socket.emit('join', paramsRoom)
       setRoom(paramsRoom)
       setName(name)
       setMyTurn(false)
     } else {
-      // Player 1
-      console.log(parsedRoom)
       const newRoomName = random()
       socket.emit('create', newRoomName)
       setRoom(newRoomName)
@@ -144,7 +141,7 @@ const Game = () => {
         {winner ? (
           <>
             <Confetti width={window.innerWidth} height={window.innerHeight} />
-            <span>Player {player} wins!</span>
+            <span>{`Player ${player} wins!`}</span>
           </>
         ) : turnNumber === 9 ? (
           <span>It's a tie!</span>
