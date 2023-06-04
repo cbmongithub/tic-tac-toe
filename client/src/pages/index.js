@@ -2,6 +2,7 @@ import { useRouter } from 'next/router'
 import queryString from 'query-string'
 import { useEffect, useState } from 'react'
 import io from 'socket.io-client'
+import Confetti from 'react-confetti'
 
 const socket = io('http://localhost:4000')
 
@@ -100,8 +101,8 @@ const Game = () => {
   }, [turnData, game, turnNumber, winner, myTurn])
 
   return (
-    <div className='container'>
-      <h1 className='text-3xl font-bold'>Room: {!isSSR && room}</h1>
+    <div className='p-10 flex flex-col justify-center text-center items-center shadow-lg rounded-xl'>
+      <h1 className='text-3xl font-bold p-5'>Room: {!isSSR && room}</h1>
       <button
         className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
         onClick={() => setShare(!share)}
@@ -115,33 +116,43 @@ const Game = () => {
           Share link:{' '}
           <input
             type='text'
+            className='bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 mt-2 leading-tight focus:outline-none focus:bg-white focus:border-blue-500'
             value={`${window.location.href}?room=${room}`}
             readOnly
           />
         </>
-      ) : null}
+      ) : (
+        ''
+      )}
       <br />
       <br />
-      Turn: {myTurn ? 'You' : 'Opponent'}
+      {myTurn ? (
+        <p className='font-bold'>Your turn</p>
+      ) : (
+        <p className='font-bold'>Opponents Turn</p>
+      )}
       <br />
-      {hasOpponent ? '' : 'Waiting for opponent...'}
-      <p>
-        {winner || turnNumber === 9 ? (
-          <button
-            onClick={sendRestart}
-            className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-          >
-            Button
-          </button>
-        ) : null}
+      {hasOpponent ? '' : <p className='italic'>Waiting for opponent...</p>}
+      <div className='flex flex-col justify-center items-center my-5'>
         {winner ? (
-          <span>We have a winner! {player}</span>
+          <>
+            <Confetti width={window.innerWidth} height={window.innerHeight} />
+            <span>Player {player} wins!</span>
+          </>
         ) : turnNumber === 9 ? (
           <span>It's a tie!</span>
         ) : (
           <br />
         )}
-      </p>
+        {winner || turnNumber === 9 ? (
+          <button
+            onClick={sendRestart}
+            className='bg-blue-500 hover:bg-blue-700 text-white font-bold mt-5 py-2 px-4 rounded'
+          >
+            Restart
+          </button>
+        ) : null}
+      </div>
       <div className='flex'>
         <Box index={0} key={0} turn={turn} value={game[0]} />
         <Box index={1} key={1} turn={turn} value={game[1]} />
@@ -164,7 +175,7 @@ const Game = () => {
 const Box = ({ index, turn, value }) => {
   return (
     <div
-      className='w-20 h-20 border-solid border-2 border-black mt-[-1px] ml-[-1px] text-center leading-[4.5rem] text-5xl font-bold'
+      className='w-20 h-20 border-solid border-2 border-black mt-[-1px] ml-[-1px] leading-[4.5rem] text-5xl font-bold'
       onClick={() => turn(index)}
     >
       {value}

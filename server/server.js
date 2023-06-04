@@ -26,7 +26,7 @@ io.on('connection', (socket) => {
   socket.on('join', (room) => {
     socket.join(room)
     io.to(room).emit('opponent_joined')
-    console.log('Joined room')
+    console.log('Opponent joined room')
   })
 
   socket.on('turn', (data) => {
