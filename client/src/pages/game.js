@@ -23,6 +23,8 @@ const Game = () => {
   const [name, setName] = useState(paramsName)
   const [room, setRoom] = useState(paramsRoom)
   const [isSSR, setIsSSR] = useState(true)
+  const [winnerName, setWinnerName] = useState('')
+  const [playerData, setPlayerData] = useState({})
 
   const turn = (index) => {
     if (!game[index] && !winner && myTurn && hasOpponent) {
@@ -32,6 +34,10 @@ const Game = () => {
 
   const sendRestart = () => {
     socket.emit('restart', JSON.stringify({ room }))
+  }
+
+  const sendWinner = (name) => {
+    socket.emit('winner', JSON.stringify({ name: name, room }))
   }
 
   const restart = () => {
@@ -49,12 +55,14 @@ const Game = () => {
       setRoom(paramsRoom)
       setName(name)
       setMyTurn(false)
+      setPlayerData({ name: name, xo: 'O' })
     } else {
       const newRoomName = random()
       socket.emit('create', newRoomName)
       setRoom(newRoomName)
       setName(name)
       setMyTurn(true)
+      setPlayerData({ name: name, xo: 'X' })
     }
   }, [paramsRoom])
 
@@ -87,6 +95,10 @@ const Game = () => {
       setHasOpponent(true)
       setShare(false)
     })
+
+    socket.on('winner', (name) => {
+      setWinnerName(name)
+    })
   }, [])
 
   useEffect(() => {
@@ -100,6 +112,7 @@ const Game = () => {
         setTurnData(false)
         setMyTurn(!myTurn)
         setPlayer(data.value)
+        playerData.xo === data.value && sendWinner(playerData.name)
       }
     }
   }, [turnData, game, turnNumber, winner, myTurn])
@@ -130,18 +143,17 @@ const Game = () => {
       )}
       <br />
       <br />
-      {myTurn ? (
+      {myTurn && !winner && (
         <p className='font-bold'>{`Your turn, ${!isSSR && name}`}</p>
-      ) : (
-        <p className='font-bold'>Opponents Turn</p>
       )}
+      {!myTurn && !winner && <p className='font-bold'>Opponents Turn</p>}
       <br />
       {hasOpponent ? '' : <p className='italic'>Waiting for opponent...</p>}
       <div className='flex flex-col justify-center items-center my-5'>
         {winner ? (
           <>
             <Confetti width={window.innerWidth} height={window.innerHeight} />
-            <span>{`Player ${player} wins!`}</span>
+            <span>{`${winnerName} wins!`}</span>
           </>
         ) : turnNumber === 9 ? (
           <span>It's a tie!</span>

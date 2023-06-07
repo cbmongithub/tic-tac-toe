@@ -40,4 +40,10 @@ io.on('connection', (socket) => {
     io.to(room).emit('restart')
     console.log('Restarting game')
   })
+
+  socket.on('winner', (data) => {
+    const { name, room } = JSON.parse(data)
+    io.to(room).emit('winner', name)
+    console.log(`${name} has been chosen as the winner`)
+  })
 })
