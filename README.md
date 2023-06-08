@@ -9,3 +9,5 @@ A tic tac toe game under construction!
 - Node js
 - Express
 - Tailwind Css
+- React Hot Toast
+- React Confetti

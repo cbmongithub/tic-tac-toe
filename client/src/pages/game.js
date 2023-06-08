@@ -2,6 +2,7 @@ import { useRouter } from 'next/router'
 import queryString from 'query-string'
 import { useEffect, useState } from 'react'
 import io from 'socket.io-client'
+import { toast, Toaster } from 'react-hot-toast'
 import Confetti from 'react-confetti'
 
 const socket = io('http://localhost:4000')
@@ -44,9 +45,50 @@ const Game = () => {
     }
   }
 
+  const announceOpponentJoined = (name) => {
+    toast(`${name} joined to play!`, {
+      icon: '👏',
+      toastId: 'opponentJoined',
+      duration: 5000,
+    })
+  }
+
+  const announceCreatedRoom = (room) => {
+    toast(`You created room ${room}! Invite anyone with the link to play`, {
+      icon: '✅',
+      toastId: 'createdRoom',
+      duration: 5000,
+    })
+  }
+
+  const announceWinner = () => {
+    toast(`You won!`, {
+      icon: '🥳',
+      toastId: 'winnerChosen',
+      duration: 5000,
+    })
+  }
+
+  const announceLoser = () => {
+    toast('You lost!', {
+      icon: '😔',
+      toastId: 'loserChosen',
+      duration: 5000,
+    })
+  }
+
+  const announceLinkCopied = () => {
+    toast('Invite link copied!', {
+      icon: '🔗',
+      toastId: 'linkCopied',
+      duration: 5000,
+    })
+  }
+
   const handleInvite = async () => {
     let inviteLink = `${window.location.origin}/?room=${room}`
     setCopied(true)
+    announceLinkCopied()
     if ('clipboard' in navigator) {
       return await navigator.clipboard.writeText(inviteLink)
     } else {
@@ -73,6 +115,7 @@ const Game = () => {
     } else {
       const newRoomName = random()
       socket.emit('create', JSON.stringify({ name: name, room: newRoomName }))
+      announceCreatedRoom(newRoomName)
       setRoom(newRoomName)
       setName(name)
       setMyTurn(true)
@@ -109,6 +152,7 @@ const Game = () => {
       setHasOpponent(true)
       setOpponentName(data.name)
       setWhosTurn(data.turn)
+      announceOpponentJoined(data.name)
     })
 
     socket.on('winner', (name) => {
@@ -134,78 +178,88 @@ const Game = () => {
   }, [turnData, game, turnNumber, winner, myTurn])
 
   return (
-    <div className='p-10 flex flex-col justify-center text-center items-center shadow-lg rounded-xl'>
-      <h1 className='text-3xl font-bold p-5'>Room: {!isSSR && room}</h1>
-      {!hasOpponent && (
-        <div className='flex flex-col justify-center items-center'>
-          <h3 className='text-md font-normal pt-5 inline-flex'>Invite Link:</h3>
-          <input
-            type='text'
-            className='bg-gray-200 appearance-none border-2 cursor-pointer border-gray-200 rounded w-full py-2 px-4 text-gray-700 mt-2 leading-tight active: focus:outline-none'
-            placeholder={
-              copied
-                ? 'Copied Invite Link!'
-                : !isSSR
-                ? `${window.location.origin}/?room=${room}`.toString()
-                : undefined
-            }
-            readOnly
-            onClick={handleInvite}
-          />
-        </div>
-      )}
-      <br />
-      <br />
-      {myTurn && !winner && (
-        <p className='font-bold'>{`Your turn, ${!isSSR && name}`}</p>
-      )}
-      {!myTurn && !winner && (
-        <p className='font-bold'>{`${whosTurn}'s turn`}</p>
-      )}
-      <br />
-      {opponentName ? (
-        <p className='italic'>{`${opponentName} joined!`}</p>
-      ) : (
-        <p className='italic'>Waiting for someone to join...</p>
-      )}
-      <div className='flex flex-col justify-center items-center my-5'>
-        {winner ? (
-          <>
-            {winnerName === playerData.name && (
-              <Confetti width={window.innerWidth} height={window.innerHeight} />
-            )}
-            <span>{`${winnerName} wins!`}</span>
-          </>
-        ) : turnNumber === 9 ? (
-          <span>It's a tie!</span>
-        ) : (
-          <br />
+    <>
+      <div className='p-10 flex flex-col justify-center text-center items-center shadow-lg rounded-xl'>
+        <h1 className='text-3xl font-bold p-5'>Room: {!isSSR && room}</h1>
+        {!hasOpponent && (
+          <div className='flex flex-col justify-center items-center'>
+            <h3 className='text-md font-normal pt-5 inline-flex'>
+              Invite Link:
+            </h3>
+            <input
+              type='text'
+              className='bg-gray-200 appearance-none border-2 cursor-pointer border-gray-200 rounded w-full py-2 px-4 text-gray-700 mt-2 leading-tight active: focus:outline-none'
+              placeholder={
+                copied
+                  ? 'Copied Invite Link!'
+                  : !isSSR
+                  ? `${window.location.origin}/?room=${room}`
+                  : undefined
+              }
+              readOnly
+              onClick={handleInvite}
+            />
+          </div>
         )}
-        {winner || turnNumber === 9 ? (
-          <button
-            onClick={sendRestart}
-            className='bg-blue-500 hover:bg-blue-700 text-white font-bold mt-5 py-2 px-4 rounded'
-          >
-            Restart
-          </button>
-        ) : null}
+        <br />
+        <br />
+        {myTurn && !winner && (
+          <p className='font-bold'>{`Your turn, ${!isSSR && name}`}</p>
+        )}
+        {!myTurn && !winner && (
+          <p className='font-bold'>{`${whosTurn}'s turn`}</p>
+        )}
+        <br />
+        {hasOpponent ? (
+          ''
+        ) : (
+          <p className='italic'>Waiting for someone to join...</p>
+        )}
+        <div className='flex flex-col justify-center items-center my-5'>
+          {winner ? (
+            <>
+              {winnerName === playerData.name && (
+                <Confetti
+                  width={window.innerWidth}
+                  height={window.innerHeight}
+                />
+              )}
+              <h1 className='font-bold text-2xl mb-5 mt-0'>
+                {winnerName} won!
+              </h1>
+            </>
+          ) : turnNumber === 9 ? (
+            <span>It's a tie!</span>
+          ) : (
+            <br />
+          )}
+          {winner || turnNumber === 9 ? (
+            <button
+              onClick={sendRestart}
+              className='bg-blue-500 hover:bg-blue-700 text-white font-bold mt-5 py-2 px-4 rounded mb-5'
+            >
+              Restart
+            </button>
+          ) : null}
+        </div>
+        <div className='flex'>
+          <Box index={0} key={0} turn={turn} value={game[0]} />
+          <Box index={1} key={1} turn={turn} value={game[1]} />
+          <Box index={2} key={2} turn={turn} value={game[2]} />
+        </div>
+        <div className='flex'>
+          <Box index={3} key={3} turn={turn} value={game[3]} />
+          <Box index={4} key={4} turn={turn} value={game[4]} />
+          <Box index={5} key={5} turn={turn} value={game[5]} />
+        </div>
+        <div className='flex'>
+          <Box index={6} key={6} turn={turn} value={game[6]} />
+          <Box index={7} key={7} turn={turn} value={game[7]} />
+          <Box index={8} key={8} turn={turn} value={game[8]} />
+        </div>
       </div>
-      <div className='flex'>
-        <Box index={0} key={0} turn={turn} value={game[0]} />
-        <Box index={1} key={1} turn={turn} value={game[1]} />
-        <Box index={2} key={2} turn={turn} value={game[2]} />
-      </div>
-      <div className='flex'>
-        <Box index={3} key={3} turn={turn} value={game[3]} />
-        <Box index={4} key={4} turn={turn} value={game[4]} />
-        <Box index={5} key={5} turn={turn} value={game[5]} />
-      </div>
-      <div className='flex'>
-        <Box index={6} key={6} turn={turn} value={game[6]} />
-        <Box index={7} key={7} turn={turn} value={game[7]} />
-        <Box index={8} key={8} turn={turn} value={game[8]} />
-      </div>
-    </div>
+      <Toaster />
+    </>
   )
 }
 
