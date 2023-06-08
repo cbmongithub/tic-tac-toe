@@ -13,7 +13,6 @@ const Game = () => {
   const [winner, setWinner] = useState(false)
   const [xo, setXO] = useState('X')
   const [hasOpponent, setHasOpponent] = useState(false)
-  const [share, setShare] = useState(false)
   const [turnData, setTurnData] = useState(false)
   const location = useRouter()
   const parsedRoom = queryString.parse(location.asPath)
@@ -24,12 +23,8 @@ const Game = () => {
   const [isSSR, setIsSSR] = useState(true)
   const [winnerName, setWinnerName] = useState('')
   const [playerData, setPlayerData] = useState({})
-
-  const turn = (index) => {
-    if (!game[index] && !winner && myTurn && hasOpponent) {
-      socket.emit('turn', JSON.stringify({ index, value: xo, room }))
-    }
-  }
+  const [opponentName, setOpponentName] = useState('')
+  const [copied, setCopied] = useState(false)
 
   const sendRestart = () => {
     socket.emit('restart', JSON.stringify({ room }))
@@ -37,6 +32,25 @@ const Game = () => {
 
   const sendWinner = (name) => {
     socket.emit('winner', JSON.stringify({ name: name, room }))
+  }
+
+  const turn = (index) => {
+    if (!game[index] && !winner && myTurn && hasOpponent) {
+      socket.emit(
+        'turn',
+        JSON.stringify({ index: index, value: xo, room: room, name: name })
+      )
+    }
+  }
+
+  const handleInvite = async () => {
+    let inviteLink = `${window.location.origin}/?room=${room}`
+    setCopied(true)
+    if ('clipboard' in navigator) {
+      return await navigator.clipboard.writeText(inviteLink)
+    } else {
+      return document.execCommand('copy', true, inviteLink)
+    }
   }
 
   const restart = () => {
@@ -50,14 +64,14 @@ const Game = () => {
     setIsSSR(false)
     if (paramsRoom) {
       setXO('O')
-      socket.emit('join', paramsRoom)
+      socket.emit('join', JSON.stringify({ name: name, room: paramsRoom }))
       setRoom(paramsRoom)
       setName(name)
       setMyTurn(false)
       setPlayerData({ name: name, xo: 'O' })
     } else {
       const newRoomName = random()
-      socket.emit('create', newRoomName)
+      socket.emit('create', JSON.stringify({ name: name, room: newRoomName }))
       setRoom(newRoomName)
       setName(name)
       setMyTurn(true)
@@ -90,9 +104,9 @@ const Game = () => {
       restart()
     })
 
-    socket.on('opponent_joined', () => {
+    socket.on('opponent_joined', (name) => {
       setHasOpponent(true)
-      setShare(false)
+      setOpponentName(name)
     })
 
     socket.on('winner', (name) => {
@@ -118,35 +132,36 @@ const Game = () => {
   return (
     <div className='p-10 flex flex-col justify-center text-center items-center shadow-lg rounded-xl'>
       <h1 className='text-3xl font-bold p-5'>Room: {!isSSR && room}</h1>
-      <button
-        className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-        onClick={() => setShare(!share)}
-      >
-        Share
-      </button>
-      {share ? (
-        <>
-          <br />
-          <br />
-          Share link:{' '}
+      {!hasOpponent && (
+        <div className='flex flex-col justify-center items-center'>
+          <h3 className='text-md font-normal pt-5 inline-flex'>Invite Link:</h3>
           <input
             type='text'
-            className='bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 mt-2 leading-tight focus:outline-none focus:bg-white focus:border-blue-500'
-            value={`${window.location.origin}/?room=${room}`}
+            className='bg-gray-200 appearance-none border-2 cursor-pointer border-gray-200 rounded w-full py-2 px-4 text-gray-700 mt-2 leading-tight active: focus:outline-none'
+            placeholder={
+              copied
+                ? 'Copied Invite Link!'
+                : !isSSR
+                ? `${window.location.origin}/?room=${room}`.toString()
+                : undefined
+            }
             readOnly
+            onClick={handleInvite}
           />
-        </>
-      ) : (
-        ''
+        </div>
       )}
       <br />
       <br />
       {myTurn && !winner && (
         <p className='font-bold'>{`Your turn, ${!isSSR && name}`}</p>
       )}
-      {!myTurn && !winner && <p className='font-bold'>Opponents Turn</p>}
+      {!myTurn && !winner && <p className='font-bold'>{`Opponents turn`}</p>}
       <br />
-      {hasOpponent ? '' : <p className='italic'>Waiting for opponent...</p>}
+      {opponentName ? (
+        <p className='italic'>{`${opponentName} joined!`}</p>
+      ) : (
+        <p className='italic'>Waiting for someone to join...</p>
+      )}
       <div className='flex flex-col justify-center items-center my-5'>
         {winner ? (
           <>

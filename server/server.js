@@ -17,23 +17,29 @@ const io = socket(server, {
   },
 })
 
+let playerOne
+let playerTwo
+
 io.on('connection', (socket) => {
-  socket.on('create', (room) => {
+  socket.on('create', (data) => {
+    const { name, room } = JSON.parse(data)
     socket.join(room)
-    console.log('Created room')
+    playerOne = name
+    console.log(`${name} created room ${room}`)
   })
 
-  socket.on('join', (room) => {
+  socket.on('join', (data) => {
+    const { name, room } = JSON.parse(data)
     socket.join(room)
-    io.to(room).emit('opponent_joined')
-    console.log('Opponent joined room')
+    playerTwo = name
+    io.to(room).emit('opponent_joined', name)
+    console.log(`${name} joined room ${room}`)
   })
 
   socket.on('turn', (data) => {
-    console.log(data)
-    const room = JSON.parse(data).room
+    const { index, value, room, name } = JSON.parse(data)
     io.to(room).emit('playerTurn', data)
-    console.log('Other players turn')
+    console.log(`Index: ${index}, Value: ${value}, Room:${room}, Name:${name}`)
   })
 
   socket.on('restart', (data) => {
