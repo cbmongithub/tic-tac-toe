@@ -12,7 +12,6 @@ const Game = () => {
   const [myTurn, setMyTurn] = useState(true)
   const [winner, setWinner] = useState(false)
   const [xo, setXO] = useState('X')
-  const [player, setPlayer] = useState('')
   const [hasOpponent, setHasOpponent] = useState(false)
   const [share, setShare] = useState(false)
   const [turnData, setTurnData] = useState(false)
@@ -111,7 +110,6 @@ const Game = () => {
         setTurnNumber(turnNumber + 1)
         setTurnData(false)
         setMyTurn(!myTurn)
-        setPlayer(data.value)
         playerData.xo === data.value && sendWinner(playerData.name)
       }
     }
@@ -152,7 +150,9 @@ const Game = () => {
       <div className='flex flex-col justify-center items-center my-5'>
         {winner ? (
           <>
-            <Confetti width={window.innerWidth} height={window.innerHeight} />
+            {winnerName === playerData.name && (
+              <Confetti width={window.innerWidth} height={window.innerHeight} />
+            )}
             <span>{`${winnerName} wins!`}</span>
           </>
         ) : turnNumber === 9 ? (

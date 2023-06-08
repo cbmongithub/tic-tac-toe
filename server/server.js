@@ -30,6 +30,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('turn', (data) => {
+    console.log(data)
     const room = JSON.parse(data).room
     io.to(room).emit('playerTurn', data)
     console.log('Other players turn')
@@ -44,6 +45,6 @@ io.on('connection', (socket) => {
   socket.on('winner', (data) => {
     const { name, room } = JSON.parse(data)
     io.to(room).emit('winner', name)
-    console.log(`${name} has been chosen as the winner`)
+    console.log(`Tracking winner: ${name}`)
   })
 })
