@@ -25,6 +25,7 @@ const Game = () => {
   const [playerData, setPlayerData] = useState({})
   const [opponentName, setOpponentName] = useState('')
   const [copied, setCopied] = useState(false)
+  const [whosTurn, setWhosTurn] = useState('')
 
   const sendRestart = () => {
     socket.emit('restart', JSON.stringify({ room }))
@@ -97,16 +98,17 @@ const Game = () => {
 
   useEffect(() => {
     socket.on('playerTurn', (json) => {
-      setTurnData(json)
+      setTurnData(JSON.stringify(json))
     })
 
     socket.on('restart', () => {
       restart()
     })
 
-    socket.on('opponent_joined', (name) => {
+    socket.on('opponent_joined', (data) => {
       setHasOpponent(true)
-      setOpponentName(name)
+      setOpponentName(data.name)
+      setWhosTurn(data.turn)
     })
 
     socket.on('winner', (name) => {
@@ -116,7 +118,8 @@ const Game = () => {
 
   useEffect(() => {
     if (turnData) {
-      const data = JSON.parse(turnData)
+      const rawData = JSON.parse(turnData)
+      const data = JSON.parse(rawData.data)
       let g = [...game]
       if (!g[data.index] && !winner) {
         g[data.index] = data.value
@@ -124,6 +127,7 @@ const Game = () => {
         setTurnNumber(turnNumber + 1)
         setTurnData(false)
         setMyTurn(!myTurn)
+        setWhosTurn(rawData.turn)
         playerData.xo === data.value && sendWinner(playerData.name)
       }
     }
@@ -155,7 +159,9 @@ const Game = () => {
       {myTurn && !winner && (
         <p className='font-bold'>{`Your turn, ${!isSSR && name}`}</p>
       )}
-      {!myTurn && !winner && <p className='font-bold'>{`Opponents turn`}</p>}
+      {!myTurn && !winner && (
+        <p className='font-bold'>{`${whosTurn}'s turn`}</p>
+      )}
       <br />
       {opponentName ? (
         <p className='italic'>{`${opponentName} joined!`}</p>

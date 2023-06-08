@@ -32,13 +32,16 @@ io.on('connection', (socket) => {
     const { name, room } = JSON.parse(data)
     socket.join(room)
     playerTwo = name
-    io.to(room).emit('opponent_joined', name)
+    io.to(room).emit('opponent_joined', { name: name, turn: playerOne })
     console.log(`${name} joined room ${room}`)
   })
 
   socket.on('turn', (data) => {
     const { index, value, room, name } = JSON.parse(data)
-    io.to(room).emit('playerTurn', data)
+    io.to(room).emit('playerTurn', {
+      data: data,
+      turn: name === playerOne ? playerTwo : playerOne,
+    })
     console.log(`Index: ${index}, Value: ${value}, Room:${room}, Name:${name}`)
   })
 
