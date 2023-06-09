@@ -24,16 +24,15 @@ const Game = () => {
   const [isSSR, setIsSSR] = useState(true)
   const [winnerName, setWinnerName] = useState('')
   const [playerData, setPlayerData] = useState({})
-  const [opponentName, setOpponentName] = useState('')
   const [copied, setCopied] = useState(false)
   const [whosTurn, setWhosTurn] = useState('')
 
   const sendRestart = () => {
-    socket.emit('restart', JSON.stringify({ room }))
+    socket.emit('restart', JSON.stringify({ name: name, room: room }))
   }
 
   const sendWinner = (name) => {
-    socket.emit('winner', JSON.stringify({ name: name, room }))
+    socket.emit('winner', JSON.stringify({ name: name, room: room }))
   }
 
   const turn = (index) => {
@@ -62,7 +61,7 @@ const Game = () => {
   }
 
   const announceWinner = () => {
-    toast(`You won!`, {
+    toast('A winner has been decided!', {
       icon: '🥳',
       toastId: 'winnerChosen',
       duration: 5000,
@@ -81,6 +80,14 @@ const Game = () => {
     toast('Invite link copied!', {
       icon: '🔗',
       toastId: 'linkCopied',
+      duration: 5000,
+    })
+  }
+
+  const announceRestart = (name) => {
+    toast(`${name} restarted the game!`, {
+      icon: '👍',
+      toastId: 'gameRestarted',
       duration: 5000,
     })
   }
@@ -131,6 +138,7 @@ const Game = () => {
         game[c[0]] !== ''
       ) {
         setWinner(true)
+        announceWinner()
       }
     })
 
@@ -144,13 +152,13 @@ const Game = () => {
       setTurnData(JSON.stringify(json))
     })
 
-    socket.on('restart', () => {
+    socket.on('restart', (name) => {
       restart()
+      announceRestart(name)
     })
 
     socket.on('opponent_joined', (data) => {
       setHasOpponent(true)
-      setOpponentName(data.name)
       setWhosTurn(data.turn)
       announceOpponentJoined(data.name)
     })
@@ -158,12 +166,12 @@ const Game = () => {
     socket.on('winner', (name) => {
       setWinnerName(name)
     })
-  }, [])
+  }, [winner])
 
   useEffect(() => {
     if (turnData) {
-      const rawData = JSON.parse(turnData)
-      const data = JSON.parse(rawData.data)
+      const jsonData = JSON.parse(turnData)
+      const data = JSON.parse(jsonData.data)
       let g = [...game]
       if (!g[data.index] && !winner) {
         g[data.index] = data.value
@@ -171,7 +179,7 @@ const Game = () => {
         setTurnNumber(turnNumber + 1)
         setTurnData(false)
         setMyTurn(!myTurn)
-        setWhosTurn(rawData.turn)
+        setWhosTurn(jsonData.turn)
         playerData.xo === data.value && sendWinner(playerData.name)
       }
     }

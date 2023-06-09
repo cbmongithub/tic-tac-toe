@@ -46,9 +46,9 @@ io.on('connection', (socket) => {
   })
 
   socket.on('restart', (data) => {
-    const room = JSON.parse(data).room
-    io.to(room).emit('restart')
-    console.log('Restarting game')
+    const { name, room } = JSON.parse(data)
+    io.to(room).emit('restart', name)
+    console.log(`${name} restarted the game`)
   })
 
   socket.on('winner', (data) => {
