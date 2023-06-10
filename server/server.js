@@ -25,6 +25,10 @@ io.on('connection', (socket) => {
     const { name, room } = JSON.parse(data)
     socket.join(room)
     playerOne = name
+    socket.emit('message', {
+      user: 'tictacbot',
+      text: `${name}, welcome to room ${room}.`,
+    })
     console.log(`${name} created room ${room}`)
   })
 
@@ -32,6 +36,10 @@ io.on('connection', (socket) => {
     const { name, room } = JSON.parse(data)
     socket.join(room)
     playerTwo = name
+    socket.emit('message', {
+      user: 'tictacbot',
+      text: `${name}, welcome to room ${room}.`,
+    })
     io.to(room).emit('opponent_joined', { name: name, turn: playerOne })
     console.log(`${name} joined room ${room}`)
   })
@@ -55,5 +63,11 @@ io.on('connection', (socket) => {
     const { name, room } = JSON.parse(data)
     io.to(room).emit('winner', name)
     console.log(`Tracking winner: ${name}`)
+  })
+
+  socket.on('sendMessage', (data, callback) => {
+    const { name, room, message } = JSON.parse(data)
+    io.to(room).emit('message', { user: name, text: message })
+    callback()
   })
 })
