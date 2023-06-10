@@ -5,7 +5,12 @@ import io from 'socket.io-client'
 import { toast, Toaster } from 'react-hot-toast'
 import Confetti from 'react-confetti'
 
-const socket = io('http://localhost:4000')
+import InfoBar from '@/components/InfoBar'
+import Messages from '@/components/Messages'
+import Input from '@/components/Input'
+
+const ENDPOINT = 'http://localhost:4000'
+const socket = io(ENDPOINT)
 
 const Game = () => {
   const [game, setGame] = useState(Array(9).fill(''))
@@ -19,6 +24,8 @@ const Game = () => {
   const parsedRoom = queryString.parse(location.asPath)
   const paramsName = parsedRoom['/game?name']
   const paramsRoom = parsedRoom['room']
+  const [message, setMessage] = useState('')
+  const [messages, setMessages] = useState([])
   const [name, setName] = useState(paramsName)
   const [room, setRoom] = useState(paramsRoom)
   const [isSSR, setIsSSR] = useState(true)
@@ -26,6 +33,18 @@ const Game = () => {
   const [playerData, setPlayerData] = useState({})
   const [copied, setCopied] = useState(false)
   const [whosTurn, setWhosTurn] = useState('')
+
+  const sendMessage = (event) => {
+    event.preventDefault()
+
+    if (message) {
+      socket.emit(
+        'sendMessage',
+        JSON.stringify({ name: name, room: room, message: message }),
+        () => setMessage('')
+      )
+    }
+  }
 
   const sendRestart = () => {
     socket.emit('restart', JSON.stringify({ name: name, room: room }))
@@ -64,14 +83,6 @@ const Game = () => {
     toast('A winner has been decided!', {
       icon: '🥳',
       toastId: 'winnerChosen',
-      duration: 5000,
-    })
-  }
-
-  const announceLoser = () => {
-    toast('You lost!', {
-      icon: '😔',
-      toastId: 'loserChosen',
       duration: 5000,
     })
   }
@@ -148,6 +159,10 @@ const Game = () => {
   }, [game, turnNumber, xo])
 
   useEffect(() => {
+    socket.on('message', (message) => {
+      setMessages((messages) => [...messages, message])
+    })
+
     socket.on('playerTurn', (json) => {
       setTurnData(JSON.stringify(json))
     })
@@ -166,7 +181,7 @@ const Game = () => {
     socket.on('winner', (name) => {
       setWinnerName(name)
     })
-  }, [winner])
+  }, [])
 
   useEffect(() => {
     if (turnData) {
@@ -186,7 +201,7 @@ const Game = () => {
   }, [turnData, game, turnNumber, winner, myTurn])
 
   return (
-    <>
+    <div className='flex flex-row justify-between'>
       <div className='p-10 flex flex-col justify-center text-center items-center shadow-lg rounded-xl'>
         <h1 className='text-3xl font-bold p-5'>Room: {!isSSR && room}</h1>
         {!hasOpponent && (
@@ -266,8 +281,19 @@ const Game = () => {
           <Box index={8} key={8} turn={turn} value={game[8]} />
         </div>
       </div>
+      <div className='flex flex-col justify-center items-center ml-5'>
+        <div className='container shadow-lg'>
+          <InfoBar room={room} />
+          <Messages isSSR={isSSR} messages={messages} name={name} />
+          <Input
+            message={message}
+            setMessage={setMessage}
+            sendMessage={sendMessage}
+          />
+        </div>
+      </div>
       <Toaster />
-    </>
+    </div>
   )
 }
 
