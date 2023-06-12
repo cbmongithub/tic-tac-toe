@@ -204,7 +204,7 @@ const Game = () => {
     <div className='flex flex-row justify-between'>
       <div className='p-10 flex flex-col justify-center text-center items-center shadow-lg rounded-xl'>
         <h1 className='text-3xl font-bold p-5'>Room: {!isSSR && room}</h1>
-        {!hasOpponent && (
+        {!hasOpponent ? (
           <div className='flex flex-col justify-center items-center'>
             <h3 className='text-md font-normal pt-5 inline-flex'>
               Invite Link:
@@ -223,7 +223,7 @@ const Game = () => {
               onClick={handleInvite}
             />
           </div>
-        )}
+        ) : null}
         <br />
         <br />
         {myTurn && !winner && (
