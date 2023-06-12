@@ -201,8 +201,8 @@ const Game = () => {
   }, [turnData, game, turnNumber, winner, myTurn])
 
   return (
-    <div className='flex flex-row justify-between'>
-      <div className='p-10 flex flex-col justify-center text-center items-center shadow-lg rounded-xl'>
+    <div className='flex flex-col justify-center items-center mt-40 md:flex-row md:justify-around'>
+      <div className='p-10 w-full md:w-auto flex flex-col justify-center text-center items-center shadow-lg rounded-xl'>
         <h1 className='text-3xl font-bold p-5'>Room: {!isSSR && room}</h1>
         {!hasOpponent ? (
           <div className='flex flex-col justify-center items-center'>
@@ -281,7 +281,7 @@ const Game = () => {
           <Box index={8} key={8} turn={turn} value={game[8]} />
         </div>
       </div>
-      <div className='flex flex-col justify-center items-center ml-5'>
+      <div className='flex flex-col justify-center my-20 md:ml-5 items-center flex-wrap mx-auto'>
         <div className='container shadow-lg'>
           <InfoBar room={room} />
           <Messages messages={messages} name={name} />
