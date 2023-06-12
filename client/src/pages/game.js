@@ -284,7 +284,7 @@ const Game = () => {
       <div className='flex flex-col justify-center items-center ml-5'>
         <div className='container shadow-lg'>
           <InfoBar room={room} />
-          <Messages isSSR={isSSR} messages={messages} name={name} />
+          <Messages messages={messages} name={name} />
           <Input
             message={message}
             setMessage={setMessage}

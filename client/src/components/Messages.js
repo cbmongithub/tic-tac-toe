@@ -1,16 +1,28 @@
-import ScrollToBottom from 'react-scroll-to-bottom'
+import { useRef, useEffect } from 'react'
 
 import Message from './Message'
 
-const Messages = ({ isSSR, messages, name }) =>
-  !isSSR && (
-    <ScrollToBottom className='messages'>
+const Messages = ({ messages, name }) => {
+  const ref = useRef(null)
+
+  const scrollToLastMessage = () => {
+    const lastChildElement = ref.current?.lastElementChild
+    lastChildElement?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToLastMessage()
+  }, [messages])
+
+  return (
+    <div className='messages'>
       {messages.map((message, i) => (
-        <div key={i}>
+        <div ref={ref} key={i}>
           <Message message={message} name={name} />
         </div>
       ))}
-    </ScrollToBottom>
+    </div>
   )
+}
 
 export default Messages
