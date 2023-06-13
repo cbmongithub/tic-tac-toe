@@ -36,6 +36,12 @@ const Game = () => {
   const [pop] = useState(
     typeof Audio !== 'undefined' && new Audio('/sounds/pop.mp3')
   )
+  const [chime] = useState(
+    typeof Audio !== 'undefined' && new Audio('/sounds/winner.mp3')
+  )
+  const [joined] = useState(
+    typeof Audio !== 'undefined' && new Audio('/sounds/joined.mp3')
+  )
 
   const sendMessage = (event) => {
     event.preventDefault()
@@ -68,6 +74,7 @@ const Game = () => {
   }
 
   const announceOpponentJoined = (name) => {
+    joined.play()
     toast(`${name} joined to play!`, {
       icon: '👏',
       toastId: 'opponentJoined',
@@ -84,6 +91,7 @@ const Game = () => {
   }
 
   const announceWinner = () => {
+    chime.play()
     toast('A winner has been decided!', {
       icon: '🥳',
       toastId: 'winnerChosen',
@@ -265,7 +273,7 @@ const Game = () => {
               onClick={sendRestart}
               className='bg-blue-500 hover:bg-blue-700 text-white font-bold mt-5 py-2 px-4 rounded mb-5'
             >
-              Restart
+              Play Again
             </button>
           ) : null}
         </div>
