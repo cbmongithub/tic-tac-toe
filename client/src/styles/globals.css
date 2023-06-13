@@ -4,6 +4,7 @@
 
 * {
   user-select: none;
+  overflow-x: hidden;
 }
 
 /* CHAT */

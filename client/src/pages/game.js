@@ -204,7 +204,7 @@ const Game = () => {
     <div className='flex flex-col justify-center items-center mt-40 md:flex-row md:justify-around'>
       <div className='p-10 w-full md:w-auto flex flex-col justify-center text-center items-center shadow-lg rounded-xl'>
         <h1 className='text-3xl font-bold p-5'>Room: {!isSSR && room}</h1>
-        {!hasOpponent ? (
+        {!hasOpponent && !isSSR ? (
           <div className='flex flex-col justify-center items-center'>
             <h3 className='text-md font-normal pt-5 inline-flex'>
               Invite Link:
