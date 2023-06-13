@@ -33,6 +33,9 @@ const Game = () => {
   const [playerData, setPlayerData] = useState({})
   const [copied, setCopied] = useState(false)
   const [whosTurn, setWhosTurn] = useState('')
+  const [pop] = useState(
+    typeof Audio !== 'undefined' && new Audio('/sounds/pop.mp3')
+  )
 
   const sendMessage = (event) => {
     event.preventDefault()
@@ -56,6 +59,7 @@ const Game = () => {
 
   const turn = (index) => {
     if (!game[index] && !winner && myTurn && hasOpponent) {
+      pop.play()
       socket.emit(
         'turn',
         JSON.stringify({ index: index, value: xo, room: room, name: name })
@@ -202,7 +206,7 @@ const Game = () => {
 
   return (
     <div className='flex flex-col justify-center items-center mt-40 md:flex-row md:justify-around'>
-      <div className='p-10 w-full md:w-auto flex flex-col justify-center text-center items-center shadow-lg rounded-xl'>
+      <div className='p-10 w-full md:w-auto flex flex-col justify-center text-center items-center shadow-lg bg-white rounded-xl'>
         <h1 className='text-3xl font-bold p-5'>Room: {!isSSR && room}</h1>
         {!hasOpponent && !isSSR ? (
           <div className='flex flex-col justify-center items-center'>
@@ -281,8 +285,8 @@ const Game = () => {
           <Box index={8} key={8} turn={turn} value={game[8]} />
         </div>
       </div>
-      <div className='flex flex-col justify-center my-20 md:ml-5 items-center flex-wrap mx-auto'>
-        <div className='container shadow-lg'>
+      <div className='flex flex-col justify-center my-20 md:ml-5 items-center flex-wrap mx-auto shadow-lg'>
+        <div className='container'>
           <InfoBar room={room} />
           <Messages messages={messages} name={name} />
           <Input
