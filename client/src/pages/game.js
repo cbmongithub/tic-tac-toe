@@ -42,11 +42,15 @@ const Game = () => {
   const [joined] = useState(
     typeof Audio !== 'undefined' && new Audio('/sounds/joined.mp3')
   )
+  const [notification] = useState(
+    typeof Audio !== 'undefined' && new Audio('/sounds/message.mp3')
+  )
 
   const sendMessage = (event) => {
     event.preventDefault()
 
     if (message) {
+      notification.play()
       socket.emit(
         'sendMessage',
         JSON.stringify({ name: name, room: room, message: message }),
@@ -83,6 +87,7 @@ const Game = () => {
   }
 
   const announceCreatedRoom = (room) => {
+    joined.play()
     toast(`You created room ${room}! Invite anyone with the link to play`, {
       icon: '✅',
       toastId: 'createdRoom',

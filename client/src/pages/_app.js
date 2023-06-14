@@ -32,7 +32,7 @@ export default function App({ Component, pageProps }) {
         </h1>
       </div>
       <Component {...pageProps} />
-      <footer className='py-4 pt-20'>
+      <footer className='py-4 pt-20 fixed bottom-0'>
         <div className='w-full mx-auto p-4 flex items-center justify-center'>
           <span className='text-md text-zinc-400 sm:text-center'>
             &copy;&nbsp;Christian B. Martinez {new Date().getFullYear()}
