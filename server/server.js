@@ -26,7 +26,7 @@ io.on('connection', (socket) => {
     socket.join(room)
     playerOne = name
     socket.emit('message', {
-      user: 'tictacbot',
+      user: 'bot',
       text: `${name}, welcome to room ${room}.`,
     })
     console.log(`${name} created room ${room}`)
@@ -37,7 +37,7 @@ io.on('connection', (socket) => {
     socket.join(room)
     playerTwo = name
     socket.emit('message', {
-      user: 'tictacbot',
+      user: 'bot',
       text: `${name}, welcome to room ${room}.`,
     })
     io.to(room).emit('opponent_joined', { name: name, turn: playerOne })

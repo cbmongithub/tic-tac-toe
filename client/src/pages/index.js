@@ -17,7 +17,7 @@ const Index = () => {
   })
 
   return (
-    <div className='flex flex-col justify-center items-center shadow-lg rounded-lg p-8'>
+    <div className='flex flex-col justify-center items-center shadow-lg rounded-lg p-8 bg-white'>
       <div className='flex flex-col text-center justify-center items-center'>
         <h1 className='text-3xl font-bold p-5'>
           {room ? 'Join Game' : 'Create Game'}
