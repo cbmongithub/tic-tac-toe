@@ -49,8 +49,8 @@ const Game = () => {
   const sendMessage = (event) => {
     event.preventDefault()
 
+    notification.play()
     if (message) {
-      notification.play()
       socket.emit(
         'sendMessage',
         JSON.stringify({ name: name, room: room, message: message }),
