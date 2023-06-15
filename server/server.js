@@ -1,21 +1,15 @@
+const http = require('http')
 const express = require('express')
-
-const PORT = 4000
-const INDEX = '/index.html'
-
-const app = express()
-app.use((_req, res) => res.sendFile(INDEX, { root: __dirname }))
-
-const server = app.listen(PORT, () =>
-  console.log(`Listening on http://localhost:${PORT}...`)
-)
-
 const socket = require('socket.io')
-const io = socket(server, {
-  cors: {
-    origin: 'https://main--tictactoenextjs.netlify.app/',
-  },
-})
+const cors = require('cors')
+const PORT = process.env.PORT || 5000
+const app = express()
+const server = http.createServer(app)
+const io = socket(server)
+
+app.use(cors())
+
+server.listen(PORT, () => console.log(`Server is listening on port ${PORT}`))
 
 let playerOne
 let playerTwo

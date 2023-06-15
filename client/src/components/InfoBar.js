@@ -1,4 +1,5 @@
-const onlineIcon = 'http://localhost:3000/icons/onlineIcon.png'
+const onlineIcon =
+  'https://main--tictactoenextjs.netlify.app/icons/onlineIcon.png'
 
 const InfoBar = ({ isSSR, room }) => (
   <div className='infoBar'>
