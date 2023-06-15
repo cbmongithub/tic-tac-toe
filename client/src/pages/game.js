@@ -9,7 +9,7 @@ import InfoBar from '@/components/InfoBar'
 import Messages from '@/components/Messages'
 import Input from '@/components/Input'
 
-const ENDPOINT = 'http://localhost:4000'
+const ENDPOINT = 'https://tictactoeserver-daa65b7906dc.herokuapp.com/'
 const socket = io(ENDPOINT)
 
 const Game = () => {
