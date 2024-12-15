@@ -1,13 +1,12 @@
-# Tic Tac Toe
-
-# Built with:
 ![alt text](https://github.com/christianbmartinez/tic-tac-toe/blob/main/public/img/md-image.jpg)
 
-# What's this?
+# Tic Tac Toe
+
+## What's this?
 
 A full stack tic tac toe multiplayer game
 
-# Built with
+## Built with
 
 - Next js
 - Socket io
@@ -17,7 +16,7 @@ A full stack tic tac toe multiplayer game
 - React Hot Toast
 - React Confetti
 
-# What's Inside?
+## What's Inside?
 
 - A tic tac toe game
 - A chat system
