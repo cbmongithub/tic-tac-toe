@@ -1,4 +1,4 @@
-![alt text](https://github.com/christianbmartinez/tic-tac-toe/blob/main/public/img/md-image.jpg)
+![alt text](https://github.com/christianbmartinez/tic-tac-toe/blob/main/md-image.jpg)
 
 # Tic Tac Toe
 
