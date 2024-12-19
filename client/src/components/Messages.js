@@ -1,5 +1,4 @@
-import { useRef, useEffect } from 'react'
-
+import { useEffect, useRef } from 'react'
 import Message from './Message'
 
 const Messages = ({ messages, name }) => {
@@ -15,7 +14,7 @@ const Messages = ({ messages, name }) => {
   }, [messages])
 
   return (
-    <div className='messages'>
+    <div className="h-[1000px] py-6 overflow-auto flex-grow max-h-[400px] bg-white">
       {messages.map((message, i) => (
         <div ref={ref} key={i}>
           <Message message={message} name={name} />

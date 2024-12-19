@@ -1,27 +1,26 @@
 import ReactEmoji from 'react-emoji'
 
 const Message = ({ message: { text, user }, name }) => {
-  let isSentByCurrentUser = false
-
   const trimmedName = name.trim().toLowerCase()
-
-  if (user === trimmedName) {
-    isSentByCurrentUser = true
-  }
+  const isSentByCurrentUser = user === trimmedName
 
   return isSentByCurrentUser ? (
-    <div className='messageContainer justifyEnd'>
-      <p className='sentText pr-10'>{trimmedName}</p>
-      <div className='messageBox backgroundBlue'>
-        <p className='messageText colorWhite'>{ReactEmoji.emojify(text)}</p>
+    <div className="flex justify-end px-[5%] mt-5">
+      <p className="flex items-center font-sans text-gray-500 tracking-[0.3px] pr-10">
+        {trimmedName}
+      </p>
+      <div className="bg-blue-500 rounded-lg px-5 py-2 inline-block max-w-[80%]">
+        <p className="text-white text-lg break-words">{ReactEmoji.emojify(text)}</p>
       </div>
     </div>
   ) : (
-    <div className='messageContainer justifyStart'>
-      <div className='messageBox backgroundLight'>
-        <p className='messageText colorDark'>{ReactEmoji.emojify(text)}</p>
+    <div className="flex justify-start px-[5%] mt-5">
+      <div className="bg-gray-100 rounded-lg px-5 py-2 inline-block max-w-[80%]">
+        <p className="text-gray-800 text-lg break-words">{ReactEmoji.emojify(text)}</p>
       </div>
-      <p className='sentText pl-10 '>{user}</p>
+      <p className="flex items-center font-sans text-gray-500 tracking-[0.3px] pl-10">
+        {user}
+      </p>
     </div>
   )
 }
